@@ -1,25 +1,34 @@
 package com.company.reserve.demo;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.sql.DatabaseMetaData;
 import java.util.Date;
 
-import javax.activation.UnsupportedDataTypeException;
+import file.FilmStorage;
+import file.ProjectionStorage;
+import file.Seat;
+import film.Film;
+import film.RequestFilmAdd;
+import film.RequestFilmView;
+import film.ResponseFilm;
+import projection.RequestProjectionUpdate;
+import projection.RequestProjectionView;
+import projection.ResponseProjection;
+
 
 
 
 public class ServerThread implements Runnable{
 	private Socket socket;
+	private Object lockObj;
 	
-	public ServerThread(Socket sock) {
+	public ServerThread(Socket sock, Object lock) {
 		socket = sock;
+		lockObj = lock;
 	}
 
 	@Override
@@ -28,11 +37,28 @@ public class ServerThread implements Runnable{
 		
 		try {
 			
-			Request req = receive();
-		
+			IRequest req = receive();
+			IResponse response = null;
+					
+			if(req instanceof RequestProjectionUpdate){
+				RequestProjectionUpdate requestProjectionUpdate = (RequestProjectionUpdate)req;
+				response= processRequestProjectionUpdate(requestProjectionUpdate);
+			}
 			
-			Response response = update(req);
-			
+			if(req instanceof RequestProjectionView){
+				RequestProjectionView requestProjectionView =(RequestProjectionView)req;
+				response=processRequestProjectionView(requestProjectionView);
+			}
+				
+			if (req instanceof RequestFilmView) {
+				RequestFilmView requestFilmView = (RequestFilmView)req;
+				response=processRequestFilmView(requestFilmView);
+			}	
+			if (req instanceof RequestFilmAdd) {
+				RequestFilmAdd requestFilmAdd =(RequestFilmAdd)req;
+				response = processRequestFilmAdd(requestFilmAdd);
+				
+			}
 			send(response);
 
     	    socket.close();
@@ -41,8 +67,8 @@ public class ServerThread implements Runnable{
 	    	  e.printStackTrace();
 	      }
    }
-
-	public Request receive(){
+	
+	public IRequest receive(){
 		
 		try{
 			
@@ -53,7 +79,7 @@ public class ServerThread implements Runnable{
 			ObjectInputStream ois = new ObjectInputStream(is);
 			
 			//read
-			Request req = (Request)ois.readObject();
+			IRequest req = (IRequest)ois.readObject();
 			return req;
 			
 			
@@ -64,74 +90,7 @@ public class ServerThread implements Runnable{
 		
 		
 	}
-	public static Response read() {
-		/* Read database record*/
-		try{
-			Response resp;
-			if(new File("database").exists()) {
-			 	FileInputStream fi = new FileInputStream("database");
-			    ObjectInputStream dbois = new ObjectInputStream(fi); 
-			    resp = (Response) dbois.readObject();
-			    fi.close();
-			} else {
-				 resp = Response.createEmpty();				 
-			}
-			
-			return resp;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-	         
-		}
-		
-		
-	}
-	public static void write(Response resp) {
-		try{
-			FileOutputStream fo = new FileOutputStream("database");
-			ObjectOutputStream oosFile = new ObjectOutputStream(fo);
-	
-			oosFile.writeObject(resp);
-			fo.close();
-			
-		}catch(Exception e){
-			throw new RuntimeException(e);
-		}	
-	}
-	public Response update(Request req){
-
-		  /* Update database record, if applicable*/
-				try{ 
-					Response resp = read();
-				
-								if (req.seatsToBeReserved!=null){				
-							    	for(int i = 0; i <req.seatsToBeReserved.length; i++) {
-							    		for(int j = 0; j <resp.seats.size(); j++) {
-						    	    		Seat resSeat = resp.seats.get(j);
-						    	    		
-						    	    		if (req.seatsToBeReserved[i].equals(resSeat.seatID)) {
-						        	    		if(resSeat.reservedByClient==null){
-						        	    			resSeat.reservedByClient =req.clientId;
-						        	    			resSeat.reservedOn = new Date();
-						        	    		} else {
-						        	    			//todo: report error
-						        	    		}
-						    	    			
-						    	    		}
-						    	    	}
-							    	}
-							
-							    write(resp);
-								return resp;
-							}else{
-								return resp;
-							}
-				}catch(Exception e){
-					throw new RuntimeException();
-				}
-		 	
-	}
-
-	public void send(Response resp){
+	public void send(IResponse resp){
 		try{
 			/*SEND RESPONSE*/
     	    
@@ -146,23 +105,79 @@ public class ServerThread implements Runnable{
 			throw new RuntimeException();
 		}
 	}
+
+	public ResponseProjection processRequestProjectionView(RequestProjectionView reqView) {
+		synchronized (lockObj){
+			ResponseProjection responseProjection = ProjectionStorage.readProjection(reqView.projectionID);
+			return responseProjection;
+		}
+	}
 	
-//	public Request cancel(){
-//		try{
-//			
-//			// prepare streams
-//			InputStream is = socket.getInputStream();  
-//			ObjectInputStream ois = new ObjectInputStream(is);
-//			
-//			//read
-//			Request req = (Request)ois.readObject();
-//			return req;
-//			
-//			
-//		}catch(Exception e){
-//			throw new RuntimeException(e);
-//			
-//		}
-//	}
+	public ResponseProjection processRequestProjectionUpdate(RequestProjectionUpdate req){
+
+		  /* Update database record, if applicable*/
+		synchronized (lockObj){
+			try{ 
+				ResponseProjection resp = ProjectionStorage.readProjection(req.projectionId);
+			
+							if (req.seatsToBeReserved!=null){				
+						    	for(int i = 0; i <req.seatsToBeReserved.length; i++) {
+						    		for(int j = 0; j <resp.seats.size(); j++) {
+					    	    		Seat resSeat = resp.seats.get(j);
+					    	    		
+					    	    		if (req.seatsToBeReserved[i].equals(resSeat.seatID)) {
+					        	    		if(resSeat.reservedByClient.equals("")){
+					        	    			resSeat.reservedByClient =req.clientId;
+					        	    			resSeat.reservedOn = new Date();
+					        	    		} else {
+					        	    			//todo: report error
+					        	    		}
+					    	    			
+					    	    		}
+					    	    	}
+						    	}
+						
+						    ProjectionStorage.writeProjection(resp,req.projectionId);
+							return resp;
+						}else{
+							return resp;
+						}
+			}catch(Exception e){
+				throw new RuntimeException();
+			}
+		}
+				
+		 	
+	}
+
+
+	
+	public static ResponseFilm processRequestFilmView(RequestFilmView requestFilmView) {
+		ResponseFilm responseFilm = FilmStorage.readFilm();
+		return responseFilm;
+	}
+	
+	public static ResponseFilm processRequestFilmAdd (RequestFilmAdd reqFilm) {
+		  /* Update database record, if applicable*/
+				try{ 
+					ResponseFilm resp = FilmStorage.readFilm();
+					
+					Film newFilm =new Film();
+					newFilm.fileName =reqFilm.fileName;
+					newFilm.filmName = reqFilm.filmName;
+					newFilm.projectionId=reqFilm.projectionID;
+					newFilm.filmTime=reqFilm.filmTime;
+					newFilm.filmHall=reqFilm.filmHall;
+					
+					resp.films.add(newFilm);
+							
+			    	FilmStorage.writeFilm(resp);
+			    	
+					
+					return resp;							
+				}catch(Exception e){
+					throw new RuntimeException(e);
+				}
+		 	}
 	
 }
