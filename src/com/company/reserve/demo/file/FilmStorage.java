@@ -1,4 +1,4 @@
-package file;
+package com.company.reserve.demo.file;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import film.ResponseFilm;
+import com.company.reserve.demo.film.ResponseFilm;
 
 public class FilmStorage {
 	private static final String FILM_STORIGE_NAME ="FilmRegister";

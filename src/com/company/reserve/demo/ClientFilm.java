@@ -9,10 +9,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
-import film.Film;
-import film.RequestFilmAdd;
-import film.RequestFilmView;
-import film.ResponseFilm;
+import com.company.reserve.demo.film.Film;
+import com.company.reserve.demo.film.RequestFilmAdd;
+import com.company.reserve.demo.film.RequestFilmView;
+import com.company.reserve.demo.film.ResponseFilm;
 
 
 

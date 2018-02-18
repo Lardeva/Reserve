@@ -1,4 +1,4 @@
-package film;
+package com.company.reserve.demo.film;
 
 import java.io.Serializable;
 import java.util.Date;

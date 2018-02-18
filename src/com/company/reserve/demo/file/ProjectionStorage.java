@@ -1,4 +1,4 @@
-package file;
+package com.company.reserve.demo.file;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -6,8 +6,8 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import projection.RequestProjectionView;
-import projection.ResponseProjection;
+import com.company.reserve.demo.projection.RequestProjectionView;
+import com.company.reserve.demo.projection.ResponseProjection;
 
 
 

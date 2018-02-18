@@ -1,4 +1,4 @@
-package projection;
+package com.company.reserve.demo.projection;
 
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;

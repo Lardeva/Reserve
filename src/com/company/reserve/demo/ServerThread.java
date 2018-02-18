@@ -8,16 +8,16 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Date;
 
-import file.FilmStorage;
-import file.ProjectionStorage;
-import file.Seat;
-import film.Film;
-import film.RequestFilmAdd;
-import film.RequestFilmView;
-import film.ResponseFilm;
-import projection.RequestProjectionUpdate;
-import projection.RequestProjectionView;
-import projection.ResponseProjection;
+import com.company.reserve.demo.file.FilmStorage;
+import com.company.reserve.demo.file.ProjectionStorage;
+import com.company.reserve.demo.film.Film;
+import com.company.reserve.demo.film.RequestFilmAdd;
+import com.company.reserve.demo.film.RequestFilmView;
+import com.company.reserve.demo.film.ResponseFilm;
+import com.company.reserve.demo.projection.RequestProjectionUpdate;
+import com.company.reserve.demo.projection.RequestProjectionView;
+import com.company.reserve.demo.projection.ResponseProjection;
+import com.company.reserve.demo.projection.Seat;
 
 
 

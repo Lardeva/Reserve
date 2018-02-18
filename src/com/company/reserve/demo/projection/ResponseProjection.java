@@ -1,12 +1,10 @@
-package projection;
+package com.company.reserve.demo.projection;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
 import com.company.reserve.demo.IResponse;
-
-import file.Seat;
 
 public class ResponseProjection implements Serializable, IResponse{
 	public ArrayList<Seat> seats = new ArrayList<Seat>();

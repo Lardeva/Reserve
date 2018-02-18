@@ -1,4 +1,4 @@
-package file;
+package com.company.reserve.demo.projection;
 
 import java.io.Serializable;
 import java.util.Date;
