@@ -130,7 +130,11 @@ public class ServerThread implements Runnable{
 					        	    			resSeat.reservedByClient =req.clientId;
 					        	    			resSeat.reservedOn = new Date();
 					        	    		} else {
-					        	    			//todo: report error
+					        	    			//collision: report error
+					        	    			
+					        	    			resp = ProjectionStorage.readProjection(req.projectionId);
+					        	    			resp.responseStatus = "rejected";
+					        	    			return resp;
 					        	    		}
 					    	    			
 					    	    		}

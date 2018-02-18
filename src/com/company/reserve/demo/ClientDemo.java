@@ -63,7 +63,7 @@ public class ClientDemo {
 
 			/* 6. Visualize Hall View after update */
 			printHall(responseProjection);
-			if(responseProjection.responsStatus== "rejected"){
+			if(responseProjection.responseStatus.equals( "rejected")){
 				System.out.println("Your order has been declined. The places you are trying to book are already booked. Please reserve other places! ");
 			}else {
 				System.out.println("Your order is approved. Your booking is successful.");

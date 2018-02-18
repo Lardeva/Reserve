@@ -10,7 +10,7 @@ public class ResponseProjection implements Serializable, IResponse{
 	public ArrayList<Seat> seats = new ArrayList<Seat>();
 	public String filmName;
 	public Date filmTime;
-	public String responsStatus;
+	public String responseStatus = "accepted";
 	public String filmHall;
 	
 	public static ResponseProjection createEmpty (){
